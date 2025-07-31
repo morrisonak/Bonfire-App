@@ -283,23 +283,69 @@ const agencies = [
 
 // --- Server-side Loader ---
 export async function loader({ request }: Route.LoaderArgs) {
-  const results = await Promise.all(
-    agencies.map(async (agency) => {
-      const response = await fetch(agency.apiUrl);
-      if (!response.ok) {
-        throw new Response(`Failed to fetch data for ${agency.name}`, { status: 500 });
-      }
-      const data = await response.json();
-      return {
-        name: agency.name,
-        baseUrl: agency.baseUrl,
-        projects: Object.values(data.payload.projects),
-        departments: data.payload.departments,
-      };
-    })
-  );
+  try {
+    const results = await Promise.allSettled(
+      agencies.map(async (agency) => {
+        try {
+          const response = await fetch(agency.apiUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+              'Accept': 'application/json, text/plain, */*',
+            },
+          });
+          
+          if (!response.ok) {
+            console.warn(`Failed to fetch data for ${agency.name}: ${response.status}`);
+            return {
+              name: agency.name,
+              baseUrl: agency.baseUrl,
+              projects: [],
+              departments: {},
+              error: `HTTP ${response.status}`,
+            };
+          }
+          
+          const data = await response.json();
+          
+          // Safely extract data with fallbacks
+          const projects = data?.payload?.projects ? Object.values(data.payload.projects) : [];
+          const departments = data?.payload?.departments || {};
+          
+          return {
+            name: agency.name,
+            baseUrl: agency.baseUrl,
+            projects,
+            departments,
+            error: null,
+          };
+        } catch (fetchError) {
+          console.warn(`Error fetching ${agency.name}:`, fetchError);
+          return {
+            name: agency.name,
+            baseUrl: agency.baseUrl,
+            projects: [],
+            departments: {},
+            error: fetchError instanceof Error ? fetchError.message : 'Unknown error',
+          };
+        }
+      })
+    );
 
-  return results;
+    // Filter out failed results and return successful ones
+    const successfulResults = results
+      .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
+      .map(result => result.value);
+
+    // Ensure we have at least some data
+    if (successfulResults.length === 0) {
+      throw new Response('Failed to fetch data from any agency', { status: 500 });
+    }
+
+    return successfulResults;
+  } catch (error) {
+    console.error('Loader error:', error);
+    throw new Response('Internal server error', { status: 500 });
+  }
 }
 
 // --- React Component ---
@@ -311,19 +357,18 @@ export default function Home() {
 
   const selectedAgency = data.find((agency) => agency.name === selectedAgencyName);
 
-  const filteredProjects = selectedAgency
-  ? selectedAgency.projects
-      .filter((project) =>
-        project.ProjectName.toLowerCase().includes(search.toLowerCase())
-      )
-      .sort((a, b) => {
-        const dateA = new Date(a.DateClose);
-        const dateB = new Date(b.DateClose);
-
-        // Sort by closest DateClose (ascending order)
-        return dateA.getTime() - dateB.getTime();
-      })
-  : [];
+  const filteredProjects = selectedAgency && selectedAgency.projects
+    ? selectedAgency.projects
+        .filter((project: any) =>
+          project?.ProjectName?.toLowerCase().includes(search.toLowerCase())
+        )
+        .sort((a: any, b: any) => {
+          // Safely handle date sorting
+          const dateA = a?.DateClose ? new Date(a.DateClose) : new Date(0);
+          const dateB = b?.DateClose ? new Date(b.DateClose) : new Date(0);
+          return dateA.getTime() - dateB.getTime();
+        })
+    : [];
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -360,14 +405,14 @@ export default function Home() {
 
         {/* Controls */}
         <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
-          <Select value={selectedAgencyName} onValueChange={setSelectedAgencyName} className="bg-white shadow-md rounded-lg p-2">
-            <SelectTrigger className="w-72">
+          <Select value={selectedAgencyName} onValueChange={setSelectedAgencyName}>
+            <SelectTrigger className="w-72 bg-white shadow-md">
               <SelectValue placeholder="Select Agency" />
             </SelectTrigger>
             <SelectContent>
               {data.map((agency) => (
                 <SelectItem key={agency.name} value={agency.name}>
-                  {agency.name}
+                  {agency.name} {agency.error && '(Error)'}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -377,28 +422,43 @@ export default function Home() {
             placeholder="Search by project name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-72 bg-white shadow-md rounded-lg p-2"
+            className="w-72 bg-white shadow-md"
           />
         </div>
+
+        {/* Error Display */}
+        {selectedAgency?.error && (
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+            <strong>Warning:</strong> Could not load data for {selectedAgency.name}. Error: {selectedAgency.error}
+          </div>
+        )}
 
         {/* Project List */}
         <div className="flex flex-col gap-6 mt-6">
           {filteredProjects.length === 0 ? (
-            <p className="text-center text-gray-500">No projects found.</p>
+            <p className="text-center text-gray-500">
+              {selectedAgency?.error ? 'No data available due to loading error.' : 'No projects found.'}
+            </p>
           ) : (
-            filteredProjects.map((project) => (
+            filteredProjects.map((project: any) => (
               <Card key={project.ProjectID} className="shadow-lg rounded-lg hover:shadow-xl transition-shadow">
                 <CardContent className="p-4 flex flex-col gap-4">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-gray-800">{project.ProjectName}</h2>
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      {project.ProjectName || 'Unnamed Project'}
+                    </h2>
                     <span className="text-sm text-gray-500">
-                      Closes: {new Date(project.DateClose).toLocaleDateString()}
+                      Closes: {project.DateClose ? new Date(project.DateClose).toLocaleDateString() : 'Date TBD'}
                     </span>
                   </div>
 
                   <div className="flex flex-col text-sm text-gray-500">
-                    <span>Reference ID: {project.ReferenceID}</span>
-                    <span>Department: {selectedAgency?.departments[project.DepartmentID]?.DepartmentName || "Unknown"}</span>
+                    <span>Reference ID: {project.ReferenceID || 'N/A'}</span>
+                    <span>
+                      Department: {
+                        selectedAgency?.departments?.[project.DepartmentID]?.DepartmentName || 'Unknown'
+                      }
+                    </span>
                   </div>
 
                   <div className="mt-2">
@@ -408,7 +468,7 @@ export default function Home() {
                       asChild
                     >
                       <a
-                        href={`${selectedAgency.baseUrl}${project.ProjectID}`}
+                        href={`${selectedAgency?.baseUrl}${project.ProjectID}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1"
