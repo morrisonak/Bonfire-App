@@ -43,6 +43,242 @@ const agencies = [
     apiUrl: "https://txdot.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
     baseUrl: "https://txdot.bonfirehub.com/opportunities/",
   },
+  // Federal/State Agencies
+  {
+    name: "Washington State Department of Enterprise Services",
+    apiUrl: "https://deswa.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://deswa.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Utah Public Procurement Place (U3P)",
+    apiUrl: "https://utah.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://utah.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Delaware Office of Management and Budget",
+    apiUrl: "https://gss.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://gss.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Texas Workforce Commission",
+    apiUrl: "https://twc-texas-gov.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://twc-texas-gov.bonfirehub.com/opportunities/",
+  },
+
+  // Counties
+  {
+    name: "Galveston County, TX",
+    apiUrl: "https://galvestoncountytx.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://galvestoncountytx.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Suffolk County, NY",
+    apiUrl: "https://suffolkcountyny.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://suffolkcountyny.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Boulder County, CO",
+    apiUrl: "https://bouldercounty.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://bouldercounty.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Walker County, TX",
+    apiUrl: "https://co-walker-tx.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://co-walker-tx.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Columbia County, GA",
+    apiUrl: "https://columbiacountyga.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://columbiacountyga.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Williamson County, TX",
+    apiUrl: "https://wilco.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://wilco.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "County of Sussex",
+    apiUrl: "https://sussex.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://sussex.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "County of Wake, NC",
+    apiUrl: "https://wake.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://wake.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Cook County, IL",
+    apiUrl: "https://cookcountyil.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://cookcountyil.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Johnson County, TX",
+    apiUrl: "https://johnsoncountytx.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://johnsoncountytx.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Montgomery County, PA",
+    apiUrl: "https://montcopa.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://montcopa.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Brazoria County, TX",
+    apiUrl: "https://brazoriacounty.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://brazoriacounty.bonfirehub.com/opportunities/",
+  },
+
+  // Cities
+  {
+    name: "City of Seattle, WA",
+    apiUrl: "https://cityofseattle.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://cityofseattle.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Charlotte, NC",
+    apiUrl: "https://charlottenc.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://charlottenc.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "City of Alpharetta, GA",
+    apiUrl: "https://cityofalpharetta.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://cityofalpharetta.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "City of Dallas, TX",
+    apiUrl: "https://dallascityhall.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://dallascityhall.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "City of Fort Worth, TX",
+    apiUrl: "https://fortworthtexas.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://fortworthtexas.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Paradise Valley, AZ",
+    apiUrl: "https://paradisevalleyaz.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://paradisevalleyaz.bonfirehub.com/opportunities/",
+  },
+
+  // Universities/Educational Institutions
+  {
+    name: "University of Massachusetts",
+    apiUrl: "https://umass.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://umass.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "NC State University",
+    apiUrl: "https://ncsu.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://ncsu.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Rice University, TX",
+    apiUrl: "https://rice-edu.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://rice-edu.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Bridgewater State University",
+    apiUrl: "https://bridgew.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://bridgew.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Southern Oregon University",
+    apiUrl: "https://sou.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://sou.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "University of Texas Rio Grande Valley",
+    apiUrl: "https://utrgv.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://utrgv.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Chicago Public Schools",
+    apiUrl: "https://cps.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://cps.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Douglas County School System, GA",
+    apiUrl: "https://dcssga.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://dcssga.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Education Service Center Region 10, TX",
+    apiUrl: "https://region10.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://region10.bonfirehub.com/opportunities/",
+  },
+
+  // Healthcare Systems
+  {
+    name: "University Health",
+    apiUrl: "https://universityhealth.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://universityhealth.bonfirehub.com/opportunities/",
+  },
+
+  // Housing Authorities
+  {
+    name: "Housing Authority Prince George's County",
+    apiUrl: "https://hapgcprocurement.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://hapgcprocurement.bonfirehub.com/opportunities/",
+  },
+
+  // Transportation/Transit Authorities
+  {
+    name: "Metropolitan Transit Authority of Harris County (METRO)",
+    apiUrl: "https://ridemetro.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://ridemetro.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Trinity Metro",
+    apiUrl: "https://ridetm.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://ridetm.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Long Island Power Authority",
+    apiUrl: "https://lipower.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://lipower.bonfirehub.com/opportunities/",
+  },
+
+  // Utilities/Water Authorities
+  {
+    name: "Eastern Municipal Water District",
+    apiUrl: "https://emwd.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://emwd.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Beaufort-Jasper Water & Sewer Authority",
+    apiUrl: "https://bjwsa.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://bjwsa.bonfirehub.com/opportunities/",
+  },
+
+  // Regional Planning/Development Agencies
+  {
+    name: "Kentuckiana Regional Planning & Development Agency (KIPDA)",
+    apiUrl: "https://kipda.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://kipda.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "MRSC Rosters - Municipal Research and Services Center",
+    apiUrl: "https://mrscrosters.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://mrscrosters.bonfirehub.com/opportunities/",
+  },
+
+  // Multi-State/Regional Consortiums
+  {
+    name: "PennBid (Pennsylvania)",
+    apiUrl: "https://pennbid.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://pennbid.bonfirehub.com/opportunities/",
+  },
+
+  // International Governments
+  {
+    name: "Cayman Islands Government",
+    apiUrl: "https://cayman.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://cayman.bonfirehub.com/opportunities/",
+  },
+  {
+    name: "Barbados Government",
+    apiUrl: "https://gov-bb.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://gov-bb.bonfirehub.com/opportunities/",
+  },
 ];
 
 // --- Server-side Loader ---
