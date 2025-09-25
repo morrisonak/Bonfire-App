@@ -128,11 +128,7 @@ const agencies = [
   },
 
   // Cities
-  {
-    name: "City of Seattle, WA",
-    apiUrl: "https://cityofseattle.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
-    baseUrl: "https://cityofseattle.bonfirehub.com/opportunities/",
-  },
+
   {
     name: "Charlotte, NC",
     apiUrl: "https://charlottenc.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
