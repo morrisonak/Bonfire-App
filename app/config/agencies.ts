@@ -112,6 +112,60 @@ export const agencies: Agency[] = [
     baseUrl: "https://brazoriacounty.bonfirehub.com/opportunities/",
     category: "county",
   },
+  {
+    name: "Fairfax County, VA",
+    apiUrl: "https://fairfaxcounty.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://fairfaxcounty.bonfirehub.com/opportunities/",
+    category: "county",
+  },
+  {
+    name: "Ventura County, CA",
+    apiUrl: "https://ventura.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://ventura.bonfirehub.com/opportunities/",
+    category: "county",
+  },
+  {
+    name: "Chatham County, GA",
+    apiUrl: "https://chathamcountyga.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://chathamcountyga.bonfirehub.com/opportunities/",
+    category: "county",
+  },
+  {
+    name: "Broward County, FL",
+    apiUrl: "https://broward.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://broward.bonfirehub.com/opportunities/",
+    category: "county",
+  },
+  {
+    name: "Milwaukee County, WI",
+    apiUrl: "https://countymilwaukee.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://countymilwaukee.bonfirehub.com/opportunities/",
+    category: "county",
+  },
+  {
+    name: "Pinal County, AZ",
+    apiUrl: "https://pinalcountyaz.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://pinalcountyaz.bonfirehub.com/opportunities/",
+    category: "county",
+  },
+  {
+    name: "Hillsborough County, FL",
+    apiUrl: "https://hillsboroughcounty.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://hillsboroughcounty.bonfirehub.com/opportunities/",
+    category: "county",
+  },
+  {
+    name: "Bay County, FL",
+    apiUrl: "https://baycountyfl.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://baycountyfl.bonfirehub.com/opportunities/",
+    category: "county",
+  },
+  {
+    name: "Los Alamos County, NM",
+    apiUrl: "https://losalamosnm.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://losalamosnm.bonfirehub.com/opportunities/",
+    category: "county",
+  },
 
   // Cities
   {
@@ -142,6 +196,24 @@ export const agencies: Agency[] = [
     name: "Paradise Valley, AZ",
     apiUrl: "https://paradisevalleyaz.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
     baseUrl: "https://paradisevalleyaz.bonfirehub.com/opportunities/",
+    category: "city",
+  },
+  {
+    name: "City of Waco, TX",
+    apiUrl: "https://waco-texas.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://waco-texas.bonfirehub.com/opportunities/",
+    category: "city",
+  },
+  {
+    name: "City of Burleson, TX",
+    apiUrl: "https://burlesontx.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://burlesontx.bonfirehub.com/opportunities/",
+    category: "city",
+  },
+  {
+    name: "City of Ocoee, FL",
+    apiUrl: "https://ocoee.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://ocoee.bonfirehub.com/opportunities/",
     category: "city",
   },
 
@@ -200,6 +272,54 @@ export const agencies: Agency[] = [
     baseUrl: "https://region10.bonfirehub.com/opportunities/",
     category: "university",
   },
+  {
+    name: "Florida Gulf Coast University",
+    apiUrl: "https://fgcu.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://fgcu.bonfirehub.com/opportunities/",
+    category: "university",
+  },
+  {
+    name: "San Antonio Independent School District",
+    apiUrl: "https://saisd.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://saisd.bonfirehub.com/opportunities/",
+    category: "university",
+  },
+  {
+    name: "Cobb County School District",
+    apiUrl: "https://cobbk12.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://cobbk12.bonfirehub.com/opportunities/",
+    category: "university",
+  },
+  {
+    name: "Fort Bend Independent School District",
+    apiUrl: "https://fortbendisd.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://fortbendisd.bonfirehub.com/opportunities/",
+    category: "university",
+  },
+  {
+    name: "Anaheim Union High School District",
+    apiUrl: "https://auhsd.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://auhsd.bonfirehub.com/opportunities/",
+    category: "university",
+  },
+  {
+    name: "School District U-46",
+    apiUrl: "https://u-46.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://u-46.bonfirehub.com/opportunities/",
+    category: "university",
+  },
+  {
+    name: "Richardson Independent School District",
+    apiUrl: "https://risd.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://risd.bonfirehub.com/opportunities/",
+    category: "university",
+  },
+  {
+    name: "Rockdale County School District",
+    apiUrl: "https://rockdaleschools.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://rockdaleschools.bonfirehub.com/opportunities/",
+    category: "university",
+  },
 
   // Healthcare Systems
   {
@@ -240,6 +360,18 @@ export const agencies: Agency[] = [
     baseUrl: "https://tri-rail.bonfirehub.com/opportunities/",
     category: "transit",
   },
+  {
+    name: "San Francisco Bay Area Water Emergency Transportation Authority (WETA)",
+    apiUrl: "https://weta.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://weta.bonfirehub.com/opportunities/",
+    category: "transit",
+  },
+  {
+    name: "Pinellas Suncoast Transit Authority",
+    apiUrl: "https://psta.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://psta.bonfirehub.com/opportunities/",
+    category: "transit",
+  },
 
   // Utilities/Water/Power Authorities
   {
@@ -258,6 +390,18 @@ export const agencies: Agency[] = [
     name: "Beaufort-Jasper Water & Sewer Authority",
     apiUrl: "https://bjwsa.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
     baseUrl: "https://bjwsa.bonfirehub.com/opportunities/",
+    category: "utility",
+  },
+  {
+    name: "Great Lakes Water Authority",
+    apiUrl: "https://glwater.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://glwater.bonfirehub.com/opportunities/",
+    category: "utility",
+  },
+  {
+    name: "Clayton County Water Authority",
+    apiUrl: "https://ccwa.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://ccwa.bonfirehub.com/opportunities/",
     category: "utility",
   },
 
