@@ -155,12 +155,6 @@ export const agencies: Agency[] = [
     category: "county",
   },
   {
-    name: "Bay County, FL",
-    apiUrl: "https://baycountyfl.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
-    baseUrl: "https://baycountyfl.bonfirehub.com/opportunities/",
-    category: "county",
-  },
-  {
     name: "Los Alamos County, NM",
     apiUrl: "https://losalamosnm.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
     baseUrl: "https://losalamosnm.bonfirehub.com/opportunities/",
