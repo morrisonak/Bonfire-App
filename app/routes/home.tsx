@@ -14,6 +14,8 @@ import { AgencySelector } from "~/components/agency-selector";
 import { SearchFilters } from "~/components/search-filters";
 import { ProjectCard } from "~/components/project-card";
 import { Button } from "~/components/ui/button";
+import { exportProjectsToCSV } from "~/lib/export-utils";
+import { Download } from "lucide-react";
 
 // --- Meta Tags ---
 export function meta({}: Route.MetaArgs) {
@@ -129,13 +131,24 @@ export default function Home() {
           </div>
         )}
 
-        {/* Results Count */}
+        {/* Results Count and Export */}
         {filteredProjectsWithAgency.length > 0 && (
-          <p className="text-sm text-gray-600 text-center">
-            Showing {Math.min(displayCount, filteredProjectsWithAgency.length)} of{" "}
-            {filteredProjectsWithAgency.length}{" "}
-            {filteredProjectsWithAgency.length === 1 ? "opportunity" : "opportunities"}
-          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <p className="text-sm text-gray-600">
+              Showing {Math.min(displayCount, filteredProjectsWithAgency.length)} of{" "}
+              {filteredProjectsWithAgency.length}{" "}
+              {filteredProjectsWithAgency.length === 1 ? "opportunity" : "opportunities"}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportProjectsToCSV(filteredProjectsWithAgency)}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export to CSV
+            </Button>
+          </div>
         )}
 
         {/* Project List */}

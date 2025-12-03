@@ -44,14 +44,29 @@ bun start
 
 ```
 app/
-├── root.tsx              # Root layout with ErrorBoundary and global Layout
-├── routes.ts             # Route configuration (not file-based routing)
-├── routes/               # Route components
+├── root.tsx                    # Root layout with ErrorBoundary
+├── routes.ts                   # Route configuration
+├── routes/
+│   └── home.tsx               # Main opportunities browser (~130 lines)
 ├── components/
-│   └── ui/              # shadcn/ui components
+│   ├── navbar.tsx             # Navigation with dark mode toggle
+│   ├── agency-selector.tsx    # Grouped agency dropdown
+│   ├── search-filters.tsx     # Search, filter, and sort controls
+│   ├── project-card.tsx       # Opportunity card with badges
+│   ├── project-list.tsx       # List container
+│   ├── loading-skeleton.tsx   # Loading states
+│   └── ui/                    # shadcn/ui primitives
+├── config/
+│   └── agencies.ts            # 50+ agency configurations by category
 ├── lib/
-│   └── utils.ts         # cn() utility for className merging
-└── app.css              # Global styles with Tailwind directives
+│   ├── types.ts               # TypeScript interfaces
+│   ├── utils.ts               # cn() utility
+│   ├── date-utils.ts          # Date formatting and calculations
+│   ├── project-utils.ts       # Filtering and sorting
+│   ├── api-client.ts          # Bonfire Hub API calls
+│   ├── export-utils.ts        # CSV export functionality
+│   └── use-dark-mode.ts       # Dark mode hook
+└── app.css                    # Global styles
 ```
 
 ### Key Patterns
@@ -88,14 +103,52 @@ This project uses shadcn/ui components styled with TailwindCSS. Configuration in
 - Use `cn()` utility from `~/lib/utils` for conditional className merging
 - Icons from `lucide-react`
 
-### Application-Specific
+### Application-Specific Features
 
-**Agency data fetching**: The main feature fetches procurement opportunities from multiple Bonfire Hub APIs. Agency configurations are in `app/routes/home.tsx` with:
-- `apiUrl`: Bonfire Hub API endpoint
-- `baseUrl`: Portal URL for linking to opportunities
-- All data is fetched server-side in the `loader` function using `Promise.all()`
+**Agency Configuration** (`app/config/agencies.ts`):
+- 50+ agencies organized by category (state, county, city, university, etc.)
+- Each agency has: name, apiUrl, baseUrl, category
+- Categories enable grouped dropdowns and filtering
 
-**SSR enabled**: Server-side rendering is enabled in `react-router.config.ts`. Disable by setting `ssr: false` for SPA mode.
+**Data Fetching** (`app/lib/api-client.ts`):
+- `fetchAllAgencies()` - Fetches all agencies in parallel with `Promise.allSettled()`
+- Error handling per agency (failures don't block successful fetches)
+- Returns `AgencyData[]` with projects, departments, and error states
+
+**Filtering & Sorting** (`app/lib/project-utils.ts`):
+- `filterProjects()` - Search by project name, reference ID, description
+- `filterByClosingDate()` - Filter by days until close (3, 7, 14, 30)
+- `sortProjects()` - Sort by close date, open date, agency name
+- All filters and sorts are composable
+
+**Date Utilities** (`app/lib/date-utils.ts`):
+- `formatCloseDate()` - Human-readable dates
+- `getRelativeDate()` - "in 3 days", "tomorrow", etc.
+- `isClosingSoon()` - Urgency detection (< 3 days)
+- `getDaysUntilClose()` - Calculate remaining days
+
+**Export** (`app/lib/export-utils.ts`):
+- `exportProjectsToCSV()` - Export filtered results to CSV
+- Includes: agency, project name, reference ID, department, dates, link
+- Downloads as `opportunities-YYYY-MM-DD.csv`
+
+**Dark Mode** (`app/lib/use-dark-mode.ts`):
+- `useDarkMode()` hook with localStorage persistence
+- Respects system preference as default
+- Toggles `dark` class on document root
+
+**View Modes**:
+- Single agency view: View projects from one agency
+- All agencies view: Browse all opportunities across all agencies
+- Agency name shown on cards in "All Agencies" mode
+
+**Pagination**:
+- Initial load: 20 items
+- "Load More" button for additional 20 items
+- Auto-reset when filters change
+- Improves performance with large datasets
+
+**SSR Configuration**: Server-side rendering enabled in `react-router.config.ts`
 
 ## Type Safety
 
