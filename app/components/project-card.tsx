@@ -1,6 +1,7 @@
 import { ExternalLink } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 import type { Project, AgencyData } from "~/lib/types";
 import {
   formatCloseDate,
@@ -37,9 +38,7 @@ export function ProjectCard({
           </div>
           <div className="flex flex-col items-end gap-1 shrink-0">
             {isUrgent && (
-              <span className="text-xs font-semibold bg-red-100 text-red-800 px-2 py-1 rounded">
-                Closing Soon
-              </span>
+              <Badge variant="destructive">Closing Soon</Badge>
             )}
             <span className="text-sm text-gray-500 text-right whitespace-nowrap">
               {formatCloseDate(project.DateClose)}

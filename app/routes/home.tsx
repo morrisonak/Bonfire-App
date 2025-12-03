@@ -1,9 +1,14 @@
 import { useLoaderData } from "react-router";
 import { useState } from "react";
 import type { Route } from "./+types/home";
+import type { SortOption } from "~/lib/types";
 import { agencies } from "~/config/agencies";
 import { fetchAllAgencies } from "~/lib/api-client";
-import { filterProjects, sortProjects } from "~/lib/project-utils";
+import {
+  filterProjects,
+  sortProjects,
+  filterByClosingDate,
+} from "~/lib/project-utils";
 import { Navbar } from "~/components/navbar";
 import { AgencySelector } from "~/components/agency-selector";
 import { SearchFilters } from "~/components/search-filters";
@@ -34,6 +39,10 @@ export default function Home() {
     data[0]?.name || ""
   );
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("close-date-asc");
+  const [closingWithinDays, setClosingWithinDays] = useState<number | undefined>(
+    undefined
+  );
 
   const selectedAgency = data.find(
     (agency) => agency.name === selectedAgencyName
@@ -42,8 +51,11 @@ export default function Home() {
   // Filter and sort projects
   const filteredProjects = selectedAgency
     ? sortProjects(
-        filterProjects(selectedAgency.projects, search),
-        "close-date-asc"
+        filterByClosingDate(
+          filterProjects(selectedAgency.projects, search),
+          closingWithinDays
+        ),
+        sortBy
       )
     : [];
 
@@ -56,14 +68,25 @@ export default function Home() {
           Open Opportunities
         </h1>
 
-        {/* Controls */}
-        <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
+        {/* Agency Selector */}
+        <div className="flex justify-center">
           <AgencySelector
             agencies={data}
             selected={selectedAgencyName}
             onChange={setSelectedAgencyName}
           />
-          <SearchFilters search={search} onSearchChange={setSearch} />
+        </div>
+
+        {/* Search, Filter, and Sort Controls */}
+        <div className="flex justify-center">
+          <SearchFilters
+            search={search}
+            onSearchChange={setSearch}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            closingWithinDays={closingWithinDays}
+            onClosingWithinDaysChange={setClosingWithinDays}
+          />
         </div>
 
         {/* Error Display */}

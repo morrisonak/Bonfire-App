@@ -8,7 +8,7 @@ import {
   SelectLabel,
 } from "./ui/select";
 import type { AgencyData, AgencyCategory } from "~/lib/types";
-import { categoryLabels } from "~/config/agencies";
+import { agencies as agencyConfig, categoryLabels } from "~/config/agencies";
 
 interface AgencySelectorProps {
   agencies: AgencyData[];
@@ -21,13 +21,15 @@ export function AgencySelector({
   selected,
   onChange,
 }: AgencySelectorProps) {
+  // Create a map of agency names to categories from config
+  const categoryMap = new Map(
+    agencyConfig.map((a) => [a.name, a.category])
+  );
+
   // Group agencies by category
   const groupedAgencies = agencies.reduce(
     (acc, agency) => {
-      // Find the category from the agencies config by matching name
-      // For now, we'll need to determine category from the data
-      // This will be properly handled when we integrate with the config
-      const category = "state"; // Placeholder - will be properly typed
+      const category = categoryMap.get(agency.name) || "state";
 
       if (!acc[category]) {
         acc[category] = [];
@@ -35,20 +37,30 @@ export function AgencySelector({
       acc[category].push(agency);
       return acc;
     },
-    {} as Record<string, AgencyData[]>
+    {} as Record<AgencyCategory, AgencyData[]>
   );
+
+  // Sort categories for consistent display
+  const sortedCategories = Object.keys(groupedAgencies).sort() as AgencyCategory[];
 
   return (
     <Select value={selected} onValueChange={onChange}>
       <SelectTrigger className="w-72 bg-white shadow-md">
         <SelectValue placeholder="Select Agency" />
       </SelectTrigger>
-      <SelectContent>
-        {agencies.map((agency) => (
-          <SelectItem key={agency.name} value={agency.name}>
-            {agency.name} ({agency.projects.length})
-            {agency.error && " ⚠️"}
-          </SelectItem>
+      <SelectContent className="max-h-[400px]">
+        {sortedCategories.map((category) => (
+          <SelectGroup key={category}>
+            <SelectLabel>{categoryLabels[category]}</SelectLabel>
+            {groupedAgencies[category]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((agency) => (
+                <SelectItem key={agency.name} value={agency.name}>
+                  {agency.name} ({agency.projects.length})
+                  {agency.error && " ⚠️"}
+                </SelectItem>
+              ))}
+          </SelectGroup>
         ))}
       </SelectContent>
     </Select>
