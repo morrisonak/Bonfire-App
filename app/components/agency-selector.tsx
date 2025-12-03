@@ -43,12 +43,24 @@ export function AgencySelector({
   // Sort categories for consistent display
   const sortedCategories = Object.keys(groupedAgencies).sort() as AgencyCategory[];
 
+  // Calculate total projects across all agencies
+  const totalProjects = agencies.reduce(
+    (sum, agency) => sum + agency.projects.length,
+    0
+  );
+
   return (
     <Select value={selected} onValueChange={onChange}>
       <SelectTrigger className="w-72 bg-white shadow-md">
         <SelectValue placeholder="Select Agency" />
       </SelectTrigger>
       <SelectContent className="max-h-[400px]">
+        {/* All Agencies Option */}
+        <SelectItem value="__all__" className="font-semibold">
+          All Agencies ({totalProjects})
+        </SelectItem>
+
+        {/* Individual Agencies by Category */}
         {sortedCategories.map((category) => (
           <SelectGroup key={category}>
             <SelectLabel>{categoryLabels[category]}</SelectLabel>

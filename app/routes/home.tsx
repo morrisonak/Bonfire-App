@@ -1,5 +1,5 @@
 import { useLoaderData } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Route } from "./+types/home";
 import type { SortOption } from "~/lib/types";
 import { agencies } from "~/config/agencies";
@@ -12,7 +12,8 @@ import {
 import { Navbar } from "~/components/navbar";
 import { AgencySelector } from "~/components/agency-selector";
 import { SearchFilters } from "~/components/search-filters";
-import { ProjectList } from "~/components/project-list";
+import { ProjectCard } from "~/components/project-card";
+import { Button } from "~/components/ui/button";
 
 // --- Meta Tags ---
 export function meta({}: Route.MetaArgs) {
@@ -43,21 +44,52 @@ export default function Home() {
   const [closingWithinDays, setClosingWithinDays] = useState<number | undefined>(
     undefined
   );
+  const [displayCount, setDisplayCount] = useState(20);
 
-  const selectedAgency = data.find(
-    (agency) => agency.name === selectedAgencyName
-  );
+  // Reset display count when filters change
+  useEffect(() => {
+    setDisplayCount(20);
+  }, [selectedAgencyName, search, sortBy, closingWithinDays]);
+
+  // Handle "All Agencies" view
+  const isAllAgenciesView = selectedAgencyName === "__all__";
+
+  const selectedAgency = isAllAgenciesView
+    ? undefined
+    : data.find((agency) => agency.name === selectedAgencyName);
+
+  // Get projects to display (either from single agency or all agencies)
+  const projectsWithAgency = isAllAgenciesView
+    ? data.flatMap((agency) =>
+        agency.projects.map((project) => ({
+          project,
+          agencyData: agency,
+        }))
+      )
+    : selectedAgency
+      ? selectedAgency.projects.map((project) => ({
+          project,
+          agencyData: selectedAgency,
+        }))
+      : [];
 
   // Filter and sort projects
-  const filteredProjects = selectedAgency
-    ? sortProjects(
-        filterByClosingDate(
-          filterProjects(selectedAgency.projects, search),
-          closingWithinDays
-        ),
-        sortBy
-      )
-    : [];
+  const filteredProjectsWithAgency = sortProjects(
+    filterByClosingDate(
+      projectsWithAgency
+        .filter(({ project }) =>
+          filterProjects([project], search).length > 0
+        )
+        .map(({ project }) => project),
+      closingWithinDays
+    ),
+    sortBy
+  ).map((project) => {
+    const agencyData = projectsWithAgency.find(
+      (p) => p.project.ProjectID === project.ProjectID
+    )?.agencyData;
+    return { project, agencyData: agencyData! };
+  });
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -97,12 +129,49 @@ export default function Home() {
           </div>
         )}
 
+        {/* Results Count */}
+        {filteredProjectsWithAgency.length > 0 && (
+          <p className="text-sm text-gray-600 text-center">
+            Showing {Math.min(displayCount, filteredProjectsWithAgency.length)} of{" "}
+            {filteredProjectsWithAgency.length}{" "}
+            {filteredProjectsWithAgency.length === 1 ? "opportunity" : "opportunities"}
+          </p>
+        )}
+
         {/* Project List */}
-        {selectedAgency && (
-          <ProjectList
-            projects={filteredProjects}
-            agencyData={selectedAgency}
-          />
+        {filteredProjectsWithAgency.length > 0 ? (
+          <>
+            <div className="flex flex-col gap-6 mt-6">
+              {filteredProjectsWithAgency
+                .slice(0, displayCount)
+                .map(({ project, agencyData }) => (
+                  <ProjectCard
+                    key={`${agencyData.name}-${project.ProjectID}`}
+                    project={project}
+                    agencyData={agencyData}
+                    showAgencyName={isAllAgenciesView}
+                  />
+                ))}
+            </div>
+
+            {/* Load More Button */}
+            {displayCount < filteredProjectsWithAgency.length && (
+              <div className="flex justify-center mt-6">
+                <Button
+                  onClick={() => setDisplayCount((prev) => prev + 20)}
+                  variant="outline"
+                  className="px-8"
+                >
+                  Load More ({filteredProjectsWithAgency.length - displayCount}{" "}
+                  remaining)
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-center text-gray-500 mt-6">
+            No projects found matching your filters.
+          </p>
         )}
       </main>
     </div>
