@@ -234,6 +234,12 @@ export const agencies: Agency[] = [
     baseUrl: "https://ridetm.bonfirehub.com/opportunities/",
     category: "transit",
   },
+  {
+    name: "Tri-Rail",
+    apiUrl: "https://tri-rail.bonfirehub.com/PublicPortal/getOpenPublicOpportunitiesSectionData",
+    baseUrl: "https://tri-rail.bonfirehub.com/opportunities/",
+    category: "transit",
+  },
 
   // Utilities/Water/Power Authorities
   {
