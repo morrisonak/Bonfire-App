@@ -94,11 +94,11 @@ export default function Home() {
   });
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950">
       <Navbar selectedAgency={selectedAgency} />
 
       <main className="flex-1 flex flex-col gap-6 max-w-4xl mx-auto p-6">
-        <h1 className="text-3xl font-bold text-center text-gray-800">
+        <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100">
           Open Opportunities
         </h1>
 
@@ -125,7 +125,7 @@ export default function Home() {
 
         {/* Error Display */}
         {selectedAgency?.error && (
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400 dark:border-yellow-600 text-yellow-800 dark:text-yellow-300 px-4 py-3 rounded">
             <strong>Warning:</strong> Could not load data for{" "}
             {selectedAgency.name}. Error: {selectedAgency.error}
           </div>
@@ -134,7 +134,7 @@ export default function Home() {
         {/* Results Count and Export */}
         {filteredProjectsWithAgency.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Showing {Math.min(displayCount, filteredProjectsWithAgency.length)} of{" "}
               {filteredProjectsWithAgency.length}{" "}
               {filteredProjectsWithAgency.length === 1 ? "opportunity" : "opportunities"}
@@ -182,7 +182,7 @@ export default function Home() {
             )}
           </>
         ) : (
-          <p className="text-center text-gray-500 mt-6">
+          <p className="text-center text-gray-500 dark:text-gray-400 mt-6">
             No projects found matching your filters.
           </p>
         )}

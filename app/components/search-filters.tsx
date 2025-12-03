@@ -31,7 +31,7 @@ export function SearchFilters({
         placeholder="Search by project name..."
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
-        className="flex-1 bg-white shadow-md"
+        className="flex-1 bg-white dark:bg-gray-900 shadow-md border-gray-300 dark:border-gray-700"
       />
 
       <Select
@@ -40,7 +40,7 @@ export function SearchFilters({
           onClosingWithinDaysChange(value === "all" ? undefined : Number(value))
         }
       >
-        <SelectTrigger className="w-full md:w-48 bg-white shadow-md">
+        <SelectTrigger className="w-full md:w-48 bg-white dark:bg-gray-900 shadow-md border-gray-300 dark:border-gray-700">
           <SelectValue placeholder="Closing within..." />
         </SelectTrigger>
         <SelectContent>
@@ -53,7 +53,7 @@ export function SearchFilters({
       </Select>
 
       <Select value={sortBy} onValueChange={(value) => onSortChange(value as SortOption)}>
-        <SelectTrigger className="w-full md:w-48 bg-white shadow-md">
+        <SelectTrigger className="w-full md:w-48 bg-white dark:bg-gray-900 shadow-md border-gray-300 dark:border-gray-700">
           <SelectValue placeholder="Sort by..." />
         </SelectTrigger>
         <SelectContent>

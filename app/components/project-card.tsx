@@ -25,31 +25,31 @@ export function ProjectCard({
   const isUrgent = isClosingSoon(project.DateClose);
 
   return (
-    <Card className="shadow-lg rounded-lg hover:shadow-xl transition-shadow">
+    <Card className="shadow-lg rounded-lg hover:shadow-xl transition-shadow bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
       <CardContent className="p-4 flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <h2 className="text-xl font-semibold text-gray-800 break-words">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 break-words">
               {project.ProjectName || "Unnamed Project"}
             </h2>
             {showAgencyName && (
-              <p className="text-sm text-gray-500 mt-1">{agencyData.name}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{agencyData.name}</p>
             )}
           </div>
           <div className="flex flex-col items-end gap-1 shrink-0">
             {isUrgent && (
               <Badge variant="destructive">Closing Soon</Badge>
             )}
-            <span className="text-sm text-gray-500 text-right whitespace-nowrap">
+            <span className="text-sm text-gray-600 dark:text-gray-300 text-right whitespace-nowrap">
               {formatCloseDate(project.DateClose)}
             </span>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-500 dark:text-gray-500">
               {getRelativeDate(project.DateClose)}
             </span>
           </div>
         </div>
 
-        <div className="flex flex-col text-sm text-gray-500">
+        <div className="flex flex-col text-sm text-gray-600 dark:text-gray-400">
           <span>Reference ID: {project.ReferenceID || "N/A"}</span>
           <span>Department: {department}</span>
         </div>

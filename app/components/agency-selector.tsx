@@ -51,7 +51,7 @@ export function AgencySelector({
 
   return (
     <Select value={selected} onValueChange={onChange}>
-      <SelectTrigger className="w-72 bg-white shadow-md">
+      <SelectTrigger className="w-72 bg-white dark:bg-gray-900 shadow-md border-gray-300 dark:border-gray-700">
         <SelectValue placeholder="Select Agency" />
       </SelectTrigger>
       <SelectContent className="max-h-[400px]">

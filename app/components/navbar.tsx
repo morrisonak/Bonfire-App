@@ -11,9 +11,9 @@ export function Navbar({ selectedAgency }: NavbarProps) {
   const { isDark, toggle } = useDarkMode();
 
   return (
-    <header className="w-full border-b bg-white dark:bg-gray-900 shadow-md sticky top-0 z-50">
+    <header className="w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
       <div className="flex items-center justify-between max-w-6xl mx-auto px-6 py-4">
-        <div className="text-xl font-bold tracking-tight text-primary">
+        <div className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
           The Hot List
         </div>
 
@@ -21,7 +21,7 @@ export function Navbar({ selectedAgency }: NavbarProps) {
         <nav className="hidden md:flex gap-6 items-center text-sm">
           <a
             href="/"
-            className="hover:text-primary transition-colors font-medium"
+            className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors font-medium"
           >
             Home
           </a>
@@ -30,7 +30,7 @@ export function Navbar({ selectedAgency }: NavbarProps) {
               href={selectedAgency.baseUrl.replace("/opportunities/", "")}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-primary transition-colors font-medium"
+              className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors font-medium"
             >
               {selectedAgency.name} Portal
             </a>
