@@ -104,3 +104,62 @@ export function exportProjectsToCSV(
 
   downloadCSV(csvContent, filename);
 }
+
+/**
+ * Convert agency data to JSON export format
+ * @param agencyDataList - Array of agency data
+ * @returns JSON object with all solicitations
+ */
+export function exportToJSON(agencyDataList: AgencyData[]) {
+  const solicitations = agencyDataList.flatMap((agency) =>
+    agency.projects.map((project) => ({
+      agency: agency.name,
+      projectName: project.ProjectName,
+      referenceId: project.ReferenceID,
+      department:
+        agency.departments[project.DepartmentID]?.DepartmentName || "Unknown",
+      closeDate: project.DateClose,
+      portalLink: `${agency.baseUrl}${project.ProjectID}`,
+    }))
+  );
+
+  return {
+    exportedAt: new Date().toISOString(),
+    totalCount: solicitations.length,
+    solicitations,
+  };
+}
+
+/**
+ * Download JSON file
+ * @param data - Data to export
+ * @param filename - Filename for download
+ */
+export function downloadJSON(data: object, filename: string): void {
+  const jsonContent = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonContent], { type: "application/json" });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+  link.style.visibility = "hidden";
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Export all solicitations to JSON and download
+ * @param agencyDataList - Array of agency data
+ */
+export function exportAllToJSON(agencyDataList: AgencyData[]): void {
+  const data = exportToJSON(agencyDataList);
+  const timestamp = new Date().toISOString().split("T")[0];
+  const filename = `solicitations-${timestamp}.json`;
+
+  downloadJSON(data, filename);
+}

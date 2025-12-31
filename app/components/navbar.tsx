@@ -1,13 +1,15 @@
-import { Menu, Moon, Sun } from "lucide-react";
+import { Download, Menu, Moon, Sun } from "lucide-react";
 import { Button } from "./ui/button";
 import type { AgencyData } from "~/lib/types";
 import { useDarkMode } from "~/lib/use-dark-mode";
+import { exportAllToJSON } from "~/lib/export-utils";
 
 interface NavbarProps {
   selectedAgency?: AgencyData;
+  allAgencies?: AgencyData[];
 }
 
-export function Navbar({ selectedAgency }: NavbarProps) {
+export function Navbar({ selectedAgency, allAgencies }: NavbarProps) {
   const { isDark, toggle } = useDarkMode();
 
   return (
@@ -36,6 +38,19 @@ export function Navbar({ selectedAgency }: NavbarProps) {
             </a>
           )}
 
+          {/* Export JSON Button */}
+          {allAgencies && allAgencies.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportAllToJSON(allAgencies)}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export JSON
+            </Button>
+          )}
+
           {/* Dark Mode Toggle */}
           <Button
             variant="ghost"
@@ -53,6 +68,16 @@ export function Navbar({ selectedAgency }: NavbarProps) {
 
         {/* Mobile Navigation */}
         <div className="flex md:hidden items-center gap-2">
+          {allAgencies && allAgencies.length > 0 && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => exportAllToJSON(allAgencies)}
+              aria-label="Export to JSON"
+            >
+              <Download className="h-5 w-5" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"
