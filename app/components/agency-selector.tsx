@@ -56,7 +56,7 @@ export function AgencySelector({
       </SelectTrigger>
       <SelectContent className="max-h-[400px]">
         {/* All Agencies Option */}
-        <SelectItem value="__all__" className="font-semibold">
+        <SelectItem value="all" className="font-semibold">
           All Agencies ({totalProjects})
         </SelectItem>
 

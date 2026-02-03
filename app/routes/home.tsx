@@ -1,14 +1,9 @@
-import { useLoaderData } from "react-router";
-import { useState, useEffect } from "react";
+import { useLoaderData, useSearchParams } from "react-router";
 import type { Route } from "./+types/home";
 import type { SortOption } from "~/lib/types";
 import { agencies } from "~/config/agencies";
 import { fetchAllAgencies } from "~/lib/api-client";
-import {
-  filterProjects,
-  sortProjects,
-  filterByClosingDate,
-} from "~/lib/project-utils";
+import { filterProjects, sortProjects, filterByClosingDate } from "~/lib/project-utils";
 import { Navbar } from "~/components/navbar";
 import { AgencySelector } from "~/components/agency-selector";
 import { SearchFilters } from "~/components/search-filters";
@@ -16,6 +11,7 @@ import { ProjectCard } from "~/components/project-card";
 import { Button } from "~/components/ui/button";
 import { exportProjectsToCSV } from "~/lib/export-utils";
 import { Download } from "lucide-react";
+import { PaginationControls } from "~/components/pagination-controls";
 
 // --- Meta Tags ---
 export function meta({}: Route.MetaArgs) {
@@ -28,33 +24,99 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+function clampInt(value: number, { min, max }: { min: number; max: number }) {
+  if (!Number.isFinite(value)) return min;
+  return Math.max(min, Math.min(max, Math.trunc(value)));
+}
+
+function parseSort(value: string | null): SortOption {
+  if (value === "close-date-asc" || value === "close-date-desc" || value === "agency-name") {
+    return value;
+  }
+  return "close-date-asc";
+}
+
 // --- Server-side Loader ---
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+
+  const agency = url.searchParams.get("agency") ?? "all";
+  const q = url.searchParams.get("q") ?? "";
+  const sortBy = parseSort(url.searchParams.get("sort"));
+
+  const withinRaw = url.searchParams.get("within");
+  const closingWithinDays = withinRaw ? Number(withinRaw) : undefined;
+
+  const pageRaw = Number(url.searchParams.get("page") ?? "1");
+  const page = clampInt(pageRaw, { min: 1, max: 9999 });
+
+  const pageSizeRaw = Number(url.searchParams.get("pageSize") ?? "20");
+  const pageSize = clampInt(pageSizeRaw, { min: 5, max: 200 });
+
   const results = await fetchAllAgencies(agencies);
-  return results;
+
+  return {
+    results,
+    state: {
+      agency,
+      q,
+      sortBy,
+      closingWithinDays,
+      page,
+      pageSize,
+    },
+  };
 }
 
 // --- React Component ---
 export default function Home() {
-  const data = useLoaderData<typeof loader>();
+  const { results: data, state: defaultState } = useLoaderData<typeof loader>();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [selectedAgencyName, setSelectedAgencyName] = useState(
-    data[0]?.name || ""
-  );
-  const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>("close-date-asc");
-  const [closingWithinDays, setClosingWithinDays] = useState<number | undefined>(
-    undefined
-  );
-  const [displayCount, setDisplayCount] = useState(20);
+  // URL is the source of truth; loader state gives SSR defaults.
+  const selectedAgencyName = searchParams.get("agency") ?? defaultState.agency;
+  const search = searchParams.get("q") ?? defaultState.q;
+  const sortBy = parseSort(searchParams.get("sort") ?? defaultState.sortBy);
 
-  // Reset display count when filters change
-  useEffect(() => {
-    setDisplayCount(20);
-  }, [selectedAgencyName, search, sortBy, closingWithinDays]);
+  const withinRaw = searchParams.get("within");
+  const closingWithinDays = withinRaw
+    ? Number(withinRaw)
+    : defaultState.closingWithinDays;
+
+  const page = clampInt(Number(searchParams.get("page") ?? defaultState.page), {
+    min: 1,
+    max: 9999,
+  });
+  const pageSize = clampInt(
+    Number(searchParams.get("pageSize") ?? defaultState.pageSize),
+    { min: 5, max: 200 }
+  );
+
+  const setParam = (key: string, value: string | undefined) => {
+    const next = new URLSearchParams(searchParams);
+
+    if (!value || value.trim() === "") {
+      next.delete(key);
+    } else {
+      next.set(key, value);
+    }
+
+    // If any filter changes, reset page.
+    if (["agency", "q", "sort", "within", "pageSize"].includes(key)) {
+      next.set("page", "1");
+    }
+
+    setSearchParams(next, { replace: false });
+  };
+
+  const setPage = (nextPage: number) => {
+    const next = new URLSearchParams(searchParams);
+    next.set("page", String(nextPage));
+    setSearchParams(next, { replace: false });
+  };
 
   // Handle "All Agencies" view
-  const isAllAgenciesView = selectedAgencyName === "__all__";
+  const isAllAgenciesView = selectedAgencyName === "all";
 
   const selectedAgency = isAllAgenciesView
     ? undefined
@@ -79,9 +141,7 @@ export default function Home() {
   const filteredProjectsWithAgency = sortProjects(
     filterByClosingDate(
       projectsWithAgency
-        .filter(({ project }) =>
-          filterProjects([project], search).length > 0
-        )
+        .filter(({ project }) => filterProjects([project], search).length > 0)
         .map(({ project }) => project),
       closingWithinDays
     ),
@@ -92,6 +152,15 @@ export default function Home() {
     )?.agencyData;
     return { project, agencyData: agencyData! };
   });
+
+  const total = filteredProjectsWithAgency.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = clampInt(page, { min: 1, max: totalPages });
+
+  const startIndex = (safePage - 1) * pageSize;
+  const endIndexExclusive = Math.min(startIndex + pageSize, total);
+
+  const paged = filteredProjectsWithAgency.slice(startIndex, endIndexExclusive);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -107,7 +176,7 @@ export default function Home() {
           <AgencySelector
             agencies={data}
             selected={selectedAgencyName}
-            onChange={setSelectedAgencyName}
+            onChange={(val) => setParam("agency", val)}
           />
         </div>
 
@@ -115,29 +184,30 @@ export default function Home() {
         <div className="flex justify-center">
           <SearchFilters
             search={search}
-            onSearchChange={setSearch}
+            onSearchChange={(val) => setParam("q", val)}
             sortBy={sortBy}
-            onSortChange={setSortBy}
+            onSortChange={(val) => setParam("sort", val)}
             closingWithinDays={closingWithinDays}
-            onClosingWithinDaysChange={setClosingWithinDays}
+            onClosingWithinDaysChange={(val) =>
+              setParam("within", val === undefined ? undefined : String(val))
+            }
           />
         </div>
 
         {/* Error Display */}
         {selectedAgency?.error && (
           <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400 dark:border-yellow-600 text-yellow-800 dark:text-yellow-300 px-4 py-3 rounded">
-            <strong>Warning:</strong> Could not load data for{" "}
+            <strong>Warning:</strong> Could not load data for {" "}
             {selectedAgency.name}. Error: {selectedAgency.error}
           </div>
         )}
 
         {/* Results Count and Export */}
-        {filteredProjectsWithAgency.length > 0 && (
+        {total > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {Math.min(displayCount, filteredProjectsWithAgency.length)} of{" "}
-              {filteredProjectsWithAgency.length}{" "}
-              {filteredProjectsWithAgency.length === 1 ? "opportunity" : "opportunities"}
+              Showing {startIndex + 1}-{endIndexExclusive} of {total}{" "}
+              {total === 1 ? "opportunity" : "opportunities"}
             </p>
             <Button
               variant="outline"
@@ -152,34 +222,24 @@ export default function Home() {
         )}
 
         {/* Project List */}
-        {filteredProjectsWithAgency.length > 0 ? (
+        {total > 0 ? (
           <>
             <div className="flex flex-col gap-6 mt-6">
-              {filteredProjectsWithAgency
-                .slice(0, displayCount)
-                .map(({ project, agencyData }) => (
-                  <ProjectCard
-                    key={`${agencyData.name}-${project.ProjectID}`}
-                    project={project}
-                    agencyData={agencyData}
-                    showAgencyName={isAllAgenciesView}
-                  />
-                ))}
+              {paged.map(({ project, agencyData }) => (
+                <ProjectCard
+                  key={`${agencyData.name}-${project.ProjectID}`}
+                  project={project}
+                  agencyData={agencyData}
+                  showAgencyName={isAllAgenciesView}
+                />
+              ))}
             </div>
 
-            {/* Load More Button */}
-            {displayCount < filteredProjectsWithAgency.length && (
-              <div className="flex justify-center mt-6">
-                <Button
-                  onClick={() => setDisplayCount((prev) => prev + 20)}
-                  variant="outline"
-                  className="px-8"
-                >
-                  Load More ({filteredProjectsWithAgency.length - displayCount}{" "}
-                  remaining)
-                </Button>
-              </div>
-            )}
+            <PaginationControls
+              page={safePage}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           </>
         ) : (
           <p className="text-center text-gray-500 dark:text-gray-400 mt-6">
