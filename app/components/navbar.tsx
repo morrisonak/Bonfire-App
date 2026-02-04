@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import type { AgencyData } from "~/lib/types";
 import { useDarkMode } from "~/lib/use-dark-mode";
 import { exportAllToJSON } from "~/lib/export-utils";
+import { authClient } from "~/lib/auth-client";
 
 interface NavbarProps {
   selectedAgency?: AgencyData;
@@ -11,6 +12,7 @@ interface NavbarProps {
 
 export function Navbar({ selectedAgency, allAgencies }: NavbarProps) {
   const { isDark, toggle } = useDarkMode();
+  const { data: session } = authClient.useSession();
 
   return (
     <header className="w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
@@ -27,6 +29,24 @@ export function Navbar({ selectedAgency, allAgencies }: NavbarProps) {
           >
             Home
           </a>
+
+          {/* Auth */}
+          {session?.user ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => authClient.signOut()}
+            >
+              Sign out
+            </Button>
+          ) : (
+            <a
+              href="/login"
+              className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors font-medium"
+            >
+              Sign in
+            </a>
+          )}
           {selectedAgency && (
             <a
               href={selectedAgency.baseUrl.replace("/opportunities/", "")}
