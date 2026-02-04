@@ -1,4 +1,5 @@
 import { useLoaderData, useSearchParams } from "react-router";
+import { useState, useEffect, useRef } from "react";
 import type { Route } from "./+types/home";
 import type { SortOption } from "~/lib/types";
 import { agencies } from "~/config/agencies";
@@ -75,8 +76,26 @@ export default function Home() {
 
   // URL is the source of truth; loader state gives SSR defaults.
   const selectedAgencyName = searchParams.get("agency") ?? defaultState.agency;
-  const search = searchParams.get("q") ?? defaultState.q;
+  const searchFromURL = searchParams.get("q") ?? defaultState.q;
   const sortBy = parseSort(searchParams.get("sort") ?? defaultState.sortBy);
+
+  // Local state for debounced search input
+  const [searchInput, setSearchInput] = useState(searchFromURL);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync local input when URL changes (e.g. back/forward navigation)
+  useEffect(() => {
+    setSearchInput(searchFromURL);
+  }, [searchFromURL]);
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   const withinRaw = searchParams.get("within");
   const closingWithinDays = withinRaw
@@ -115,6 +134,20 @@ export default function Home() {
     setSearchParams(next, { replace: false });
   };
 
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
+
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Set new timer to update URL after 300ms
+    debounceTimerRef.current = setTimeout(() => {
+      setParam("q", value);
+    }, 300);
+  };
+
   // Handle "All Agencies" view
   const isAllAgenciesView = selectedAgencyName === "all";
 
@@ -137,11 +170,11 @@ export default function Home() {
         }))
       : [];
 
-  // Filter and sort projects
+  // Filter and sort projects (use URL search, not local input)
   const filteredProjectsWithAgency = sortProjects(
     filterByClosingDate(
       projectsWithAgency
-        .filter(({ project }) => filterProjects([project], search).length > 0)
+        .filter(({ project }) => filterProjects([project], searchFromURL).length > 0)
         .map(({ project }) => project),
       closingWithinDays
     ),
@@ -183,8 +216,8 @@ export default function Home() {
         {/* Search, Filter, and Sort Controls */}
         <div className="flex justify-center">
           <SearchFilters
-            search={search}
-            onSearchChange={(val) => setParam("q", val)}
+            search={searchInput}
+            onSearchChange={handleSearchChange}
             sortBy={sortBy}
             onSortChange={(val) => setParam("sort", val)}
             closingWithinDays={closingWithinDays}
