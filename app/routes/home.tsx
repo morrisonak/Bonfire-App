@@ -83,6 +83,13 @@ export default function Home() {
   const [searchInput, setSearchInput] = useState(searchFromURL);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Keep a ref to the latest searchParams so the debounce callback
+  // never reads stale URL state (avoids overwriting other filter changes).
+  const searchParamsRef = useRef(searchParams);
+  useEffect(() => {
+    searchParamsRef.current = searchParams;
+  }, [searchParams]);
+
   // Sync local input when URL changes (e.g. back/forward navigation)
   useEffect(() => {
     setSearchInput(searchFromURL);
@@ -142,9 +149,18 @@ export default function Home() {
       clearTimeout(debounceTimerRef.current);
     }
 
-    // Set new timer to update URL after 300ms
+    // Set new timer to update URL after 300ms.
+    // Reads from searchParamsRef so we always merge with the latest URL state,
+    // and uses replace: true so typing doesn't spam browser history.
     debounceTimerRef.current = setTimeout(() => {
-      setParam("q", value);
+      const next = new URLSearchParams(searchParamsRef.current);
+      if (!value || value.trim() === "") {
+        next.delete("q");
+      } else {
+        next.set("q", value);
+      }
+      next.set("page", "1");
+      setSearchParams(next, { replace: true });
     }, 300);
   };
 
