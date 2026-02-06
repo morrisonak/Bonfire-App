@@ -1,10 +1,10 @@
 import { useLoaderData, useSearchParams } from "react-router";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import type { Route } from "./+types/home";
 import type { SortOption } from "~/lib/types";
 import { agencies } from "~/config/agencies";
 import { fetchAllAgencies } from "~/lib/api-client";
-import { filterProjects, sortProjects, filterByClosingDate } from "~/lib/project-utils";
+import { getDaysUntilClose } from "~/lib/date-utils";
 import { Navbar } from "~/components/navbar";
 import { AgencySelector } from "~/components/agency-selector";
 import { SearchFilters } from "~/components/search-filters";
@@ -172,35 +172,80 @@ export default function Home() {
     : data.find((agency) => agency.name === selectedAgencyName);
 
   // Get projects to display (either from single agency or all agencies)
-  const projectsWithAgency = isAllAgenciesView
-    ? data.flatMap((agency) =>
-        agency.projects.map((project) => ({
-          project,
-          agencyData: agency,
-        }))
-      )
-    : selectedAgency
-      ? selectedAgency.projects.map((project) => ({
-          project,
-          agencyData: selectedAgency,
-        }))
-      : [];
+  const projectsWithAgency = useMemo(
+    () =>
+      isAllAgenciesView
+        ? data.flatMap((agency) =>
+            agency.projects.map((project) => ({
+              project,
+              agencyData: agency,
+            }))
+          )
+        : selectedAgency
+          ? selectedAgency.projects.map((project) => ({
+              project,
+              agencyData: selectedAgency,
+            }))
+          : [],
+    [isAllAgenciesView, data, selectedAgency]
+  );
 
   // Filter and sort projects (use URL search, not local input)
-  const filteredProjectsWithAgency = sortProjects(
-    filterByClosingDate(
-      projectsWithAgency
-        .filter(({ project }) => filterProjects([project], searchFromURL).length > 0)
-        .map(({ project }) => project),
-      closingWithinDays
-    ),
-    sortBy
-  ).map((project) => {
-    const agencyData = projectsWithAgency.find(
-      (p) => p.project.ProjectID === project.ProjectID
-    )?.agencyData;
-    return { project, agencyData: agencyData! };
-  });
+  const filteredProjectsWithAgency = useMemo(() => {
+    const query = searchFromURL.trim().toLowerCase();
+
+    // Filter: text search + closing date
+    let filtered = projectsWithAgency;
+
+    if (query) {
+      filtered = filtered.filter(({ project }) =>
+        project.ProjectName?.toLowerCase().includes(query) ||
+        project.ReferenceID?.toLowerCase().includes(query) ||
+        project.Description?.toLowerCase().includes(query)
+      );
+    }
+
+    if (closingWithinDays) {
+      filtered = filtered.filter(({ project }) => {
+        const days = getDaysUntilClose(project.DateClose);
+        return days >= 0 && days <= closingWithinDays;
+      });
+    }
+
+    // Pre-compute date timestamps for sort performance
+    const dateCache = new Map<string, number>();
+    const getDateTs = (dateStr: string, fallback: number) => {
+      if (!dateStr) return fallback;
+      let ts = dateCache.get(dateStr);
+      if (ts === undefined) {
+        ts = new Date(dateStr).getTime();
+        dateCache.set(dateStr, ts);
+      }
+      return ts;
+    };
+
+    // Sort
+    const sorted = [...filtered];
+    switch (sortBy) {
+      case "close-date-asc":
+        sorted.sort((a, b) =>
+          getDateTs(a.project.DateClose, Infinity) - getDateTs(b.project.DateClose, Infinity)
+        );
+        break;
+      case "close-date-desc":
+        sorted.sort((a, b) =>
+          getDateTs(b.project.DateClose, 0) - getDateTs(a.project.DateClose, 0)
+        );
+        break;
+      case "agency-name":
+        sorted.sort((a, b) =>
+          a.agencyData.name.localeCompare(b.agencyData.name)
+        );
+        break;
+    }
+
+    return sorted;
+  }, [projectsWithAgency, searchFromURL, closingWithinDays, sortBy]);
 
   const total = filteredProjectsWithAgency.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));

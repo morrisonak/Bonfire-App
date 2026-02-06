@@ -2,14 +2,9 @@ import { useState, useEffect } from "react";
 
 export function useDarkMode() {
   const [isDark, setIsDark] = useState(() => {
-    // Check localStorage first
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("darkMode");
-      if (saved !== null) {
-        return saved === "true";
-      }
-      // Fall back to system preference
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    // Sync with the blocking script in root.tsx that already set the class
+    if (typeof document !== "undefined") {
+      return document.documentElement.classList.contains("dark");
     }
     return false;
   });

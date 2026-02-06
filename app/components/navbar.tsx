@@ -1,4 +1,5 @@
-import { Download, Menu, Moon, Sun } from "lucide-react";
+import { Download, Menu, X, Moon, Sun } from "lucide-react";
+import { useState } from "react";
 import { Button } from "./ui/button";
 import type { AgencyData } from "~/lib/types";
 import { useDarkMode } from "~/lib/use-dark-mode";
@@ -11,6 +12,7 @@ interface NavbarProps {
 
 export function Navbar({ selectedAgency, allAgencies }: NavbarProps) {
   const { isDark, toggle } = useDarkMode();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
@@ -93,12 +95,39 @@ export function Navbar({ selectedAgency, allAgencies }: NavbarProps) {
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Open menu"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
           >
-            <Menu className="h-5 w-5" />
+            {mobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </div>
+
+      {/* Mobile Menu Panel */}
+      {mobileMenuOpen && (
+        <nav className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-3 flex flex-col gap-3 text-sm">
+          <a
+            href="/"
+            className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors font-medium"
+          >
+            Home
+          </a>
+          {selectedAgency && (
+            <a
+              href={selectedAgency.baseUrl.replace("/opportunities/", "")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors font-medium"
+            >
+              {selectedAgency.name} Portal
+            </a>
+          )}
+        </nav>
+      )}
     </header>
   );
 }

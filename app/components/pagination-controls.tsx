@@ -20,6 +20,7 @@ export function PaginationControls({
           variant="outline"
           onClick={() => onPageChange(Math.max(1, page - 1))}
           disabled={page <= 1}
+          aria-label="Go to previous page"
         >
           Prev
         </Button>
@@ -27,12 +28,13 @@ export function PaginationControls({
           variant="outline"
           onClick={() => onPageChange(Math.min(totalPages, page + 1))}
           disabled={page >= totalPages}
+          aria-label="Go to next page"
         >
           Next
         </Button>
       </div>
 
-      <div className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="text-sm text-gray-600 dark:text-gray-400" aria-live="polite">
         Page <span className="font-medium">{page}</span> of{" "}
         <span className="font-medium">{totalPages}</span>
       </div>

@@ -29,6 +29,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var d=document.documentElement,s=localStorage.getItem('darkMode');if(s==='true'||(s===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){d.classList.add('dark')}}catch(e){}})()`,
+          }}
+        />
         <Meta />
         <Links />
       </head>
@@ -62,11 +67,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
+    <main className="pt-16 p-4 container mx-auto dark:text-gray-100">
       <h1>{message}</h1>
       <p>{details}</p>
       {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
+        <pre className="w-full p-4 overflow-x-auto dark:bg-gray-900">
           <code>{stack}</code>
         </pre>
       )}

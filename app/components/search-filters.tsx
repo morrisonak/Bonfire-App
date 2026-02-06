@@ -31,6 +31,7 @@ export function SearchFilters({
         placeholder="Search by project name..."
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
+        aria-label="Search opportunities"
         className="flex-1 bg-white dark:bg-gray-900 shadow-md border-gray-300 dark:border-gray-700"
       />
 

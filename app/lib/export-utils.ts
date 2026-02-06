@@ -3,6 +3,7 @@
  */
 
 import type { Project, AgencyData } from "./types";
+import { formatCloseDate, getDaysUntilClose } from "./date-utils";
 
 interface ProjectWithAgency {
   project: Project;
@@ -31,13 +32,10 @@ export function exportToCSV(projectsWithAgency: ProjectWithAgency[]): string {
     const department =
       agencyData.departments[project.DepartmentID]?.DepartmentName || "Unknown";
     const closeDate = project.DateClose
-      ? new Date(project.DateClose).toLocaleDateString()
+      ? formatCloseDate(project.DateClose)
       : "N/A";
     const daysUntil = project.DateClose
-      ? Math.ceil(
-          (new Date(project.DateClose).getTime() - Date.now()) /
-            (1000 * 60 * 60 * 24)
-        )
+      ? getDaysUntilClose(project.DateClose)
       : "N/A";
     const link = `${agencyData.baseUrl}${project.ProjectID}`;
 
@@ -55,7 +53,7 @@ export function exportToCSV(projectsWithAgency: ProjectWithAgency[]): string {
   // Escape CSV values
   const escapeCsvValue = (value: string | number): string => {
     const str = String(value);
-    if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+    if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("\r") || str.includes("\t")) {
       return `"${str.replace(/"/g, '""')}"`;
     }
     return str;
