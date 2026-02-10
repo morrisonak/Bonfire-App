@@ -2,9 +2,10 @@
  * API client for fetching Bonfire Hub data
  */
 
-import type { Agency, AgencyData, Project } from "./types";
+import type { Agency, AgencyData, Department, Project } from "./types";
 
 const FETCH_TIMEOUT_MS = 10_000;
+const KV_TTL_SECONDS = 300; // 5 minutes
 
 /**
  * Fetch data for a single agency
@@ -36,7 +37,7 @@ export async function fetchAgencyData(agency: Agency): Promise<AgencyData> {
       };
     }
 
-    const data = await response.json();
+    const data: Record<string, unknown> = await response.json();
 
     // Validate response shape
     if (!data || typeof data !== "object" || !data.payload) {
@@ -51,10 +52,11 @@ export async function fetchAgencyData(agency: Agency): Promise<AgencyData> {
     }
 
     // Safely extract data with fallbacks
-    const projects: Project[] = data.payload.projects
-      ? Object.values(data.payload.projects)
+    const payload = data.payload as Record<string, unknown>;
+    const projects: Project[] = payload.projects
+      ? Object.values(payload.projects as Record<string, Project>)
       : [];
-    const departments = data.payload.departments || {};
+    const departments = (payload.departments as Record<string, Department>) || {};
 
     return {
       name: agency.name,
@@ -88,16 +90,54 @@ export async function fetchAgencyData(agency: Agency): Promise<AgencyData> {
 }
 
 /**
+ * Fetch agency data with KV cache-first strategy
+ */
+async function fetchAgencyWithCache(
+  agency: Agency,
+  kv: KVNamespace
+): Promise<AgencyData> {
+  const cacheKey = `agency:${agency.name}`;
+
+  try {
+    const cached = await kv.get(cacheKey, "text");
+    if (cached) {
+      return JSON.parse(cached) as AgencyData;
+    }
+  } catch (err) {
+    console.warn(`KV read failed for ${agency.name}:`, err);
+  }
+
+  const result = await fetchAgencyData(agency);
+
+  // Only cache successful results (no error or has projects)
+  if (!result.error && result.projects.length > 0) {
+    try {
+      await kv.put(cacheKey, JSON.stringify(result), {
+        expirationTtl: KV_TTL_SECONDS,
+      });
+    } catch (err) {
+      console.warn(`KV write failed for ${agency.name}:`, err);
+    }
+  }
+
+  return result;
+}
+
+/**
  * Fetch data for multiple agencies
  * @param agencies - Array of agency configurations
+ * @param kv - Optional KV namespace for caching
  * @returns Array of agency data (successful fetches only)
  */
 export async function fetchAllAgencies(
-  agencies: Agency[]
+  agencies: Agency[],
+  kv?: KVNamespace
 ): Promise<AgencyData[]> {
   try {
     const results = await Promise.allSettled(
-      agencies.map((agency) => fetchAgencyData(agency))
+      agencies.map((agency) =>
+        kv ? fetchAgencyWithCache(agency, kv) : fetchAgencyData(agency)
+      )
     );
 
     // Filter out failed results and return successful ones

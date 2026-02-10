@@ -38,7 +38,8 @@ function parseSort(value: string | null): SortOption {
 }
 
 // --- Server-side Loader ---
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const { env } = context.cloudflare;
   const url = new URL(request.url);
 
   const agency = url.searchParams.get("agency") ?? "all";
@@ -54,7 +55,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const pageSizeRaw = Number(url.searchParams.get("pageSize") ?? "20");
   const pageSize = clampInt(pageSizeRaw, { min: 5, max: 200 });
 
-  const results = await fetchAllAgencies(agencies);
+  const results = await fetchAllAgencies(agencies, env.KV);
 
   return {
     results,

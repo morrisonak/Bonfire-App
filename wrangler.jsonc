@@ -1,0 +1,26 @@
+{
+  "name": "bonfire-app",
+  "main": "./build/server/index.js",
+  "compatibility_date": "2025-01-13",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./build/client"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bonfire-cache",
+      "database_id": "<to-be-created>",
+      "migrations_dir": "./migrations"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "<to-be-created>"
+    }
+  ]
+}
