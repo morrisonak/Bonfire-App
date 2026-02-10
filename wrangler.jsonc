@@ -1,6 +1,6 @@
 {
   "name": "bonfire-app",
-  "main": "./build/server/index.js",
+  "main": "./workers/app.ts",
   "compatibility_date": "2025-01-13",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
@@ -13,14 +13,14 @@
     {
       "binding": "DB",
       "database_name": "bonfire-cache",
-      "database_id": "<to-be-created>",
+      "database_id": "8a035991-1ff6-4e27-9a0d-919ef931d9ce",
       "migrations_dir": "./migrations"
     }
   ],
   "kv_namespaces": [
     {
       "binding": "KV",
-      "id": "<to-be-created>"
+      "id": "83d3a231eb57412a9ef562b387708008"
     }
   ]
 }
