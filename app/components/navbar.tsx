@@ -1,5 +1,6 @@
 import { Download, Menu, X, Moon, Sun } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
 import { Button } from "./ui/button";
 import type { AgencyData } from "~/lib/types";
 import { useDarkMode } from "~/lib/use-dark-mode";
@@ -23,12 +24,12 @@ export function Navbar({ selectedAgency, allAgencies }: NavbarProps) {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-6 items-center text-sm">
-          <a
-            href="/"
+          <Link
+            to="/"
             className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors font-medium"
           >
             Home
-          </a>
+          </Link>
           {selectedAgency && (
             <a
               href={selectedAgency.baseUrl.replace("/opportunities/", "")}
@@ -109,19 +110,26 @@ export function Navbar({ selectedAgency, allAgencies }: NavbarProps) {
 
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
-        <nav className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-3 flex flex-col gap-3 text-sm">
-          <a
-            href="/"
+        <nav
+          className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-3 flex flex-col gap-3 text-sm"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setMobileMenuOpen(false);
+          }}
+        >
+          <Link
+            to="/"
             className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors font-medium"
+            onClick={() => setMobileMenuOpen(false)}
           >
             Home
-          </a>
+          </Link>
           {selectedAgency && (
             <a
               href={selectedAgency.baseUrl.replace("/opportunities/", "")}
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors font-medium"
+              onClick={() => setMobileMenuOpen(false)}
             >
               {selectedAgency.name} Portal
             </a>

@@ -9,7 +9,12 @@
     "deploy": "wrangler deploy",
     "typecheck": "react-router typegen && tsc",
     "cf-typegen": "wrangler types",
-    "postinstall": "wrangler types",
+    "postinstall": "wrangler types || true",
+    "lint": "biome lint .",
+    "format": "biome format . --write",
+    "check": "biome check . --write",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:migrate": "wrangler d1 migrations apply bonfire-cache --local",
     "db:migrate:prod": "wrangler d1 migrations apply bonfire-cache --remote"
   },
@@ -28,6 +33,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.14",
     "@cloudflare/workers-types": "^4.20250124.0",
     "@react-router/dev": "^7.3.0",
     "@tailwindcss/vite": "^4.0.0",
@@ -38,6 +44,7 @@
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^4.0.18",
     "wrangler": "^3.105.0"
   }
 }

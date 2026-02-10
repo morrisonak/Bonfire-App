@@ -28,7 +28,7 @@ export function SearchFilters({
   return (
     <div className="flex flex-col md:flex-row gap-4 w-full max-w-4xl">
       <Input
-        placeholder="Search by project name..."
+        placeholder="Search by name, ID, or description..."
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
         aria-label="Search opportunities"

@@ -8,3 +8,16 @@
 # Cloudflare
 .wrangler/
 worker-configuration.d.ts
+
+# Environment files
+.env
+.env.*
+.dev.vars
+
+# Logs and build artifacts
+*.log
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/

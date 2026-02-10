@@ -35,6 +35,9 @@ export function ProjectCard({
             {showAgencyName && (
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{agencyData.name}</p>
             )}
+            {project.Description && project.Description.trim() !== "" && (
+              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mt-1">{project.Description}</p>
+            )}
           </div>
           <div className="flex flex-col items-end gap-1 shrink-0">
             {isUrgent && (
@@ -61,6 +64,7 @@ export function ProjectCard({
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1"
+              aria-label={`View details for ${project.ProjectName} (opens in new tab)`}
             >
               View Details
               <ExternalLink className="w-4 h-4" />

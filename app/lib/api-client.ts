@@ -6,6 +6,39 @@ import type { Agency, AgencyData, Department, Project } from "./types";
 
 const FETCH_TIMEOUT_MS = 10_000;
 const KV_TTL_SECONDS = 300; // 5 minutes
+const RETRIABLE_STATUS_CODES = [429, 502, 503, 504];
+
+const isValidProject = (p: unknown): p is Project => {
+  if (!p || typeof p !== "object") return false;
+  const obj = p as Record<string, unknown>;
+  return typeof obj.ProjectID === "string" && typeof obj.ProjectName === "string";
+};
+
+const isValidDepartment = (d: unknown): d is Department => {
+  if (!d || typeof d !== "object") return false;
+  const obj = d as Record<string, unknown>;
+  return (
+    typeof obj.DepartmentID === "string" &&
+    typeof obj.DepartmentName === "string"
+  );
+};
+
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit
+): Promise<Response> {
+  try {
+    const response = await fetch(url, options);
+    if (RETRIABLE_STATUS_CODES.includes(response.status)) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return fetch(url, options);
+    }
+    return response;
+  } catch (_error) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return fetch(url, options);
+  }
+}
 
 /**
  * Fetch data for a single agency
@@ -17,10 +50,9 @@ export async function fetchAgencyData(agency: Agency): Promise<AgencyData> {
   const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
   try {
-    const response = await fetch(agency.apiUrl, {
+    const response = await fetchWithRetry(agency.apiUrl, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "User-Agent": "BonfireApp/1.0 (procurement-aggregator)",
         Accept: "application/json, text/plain, */*",
       },
       signal: controller.signal,
@@ -54,9 +86,15 @@ export async function fetchAgencyData(agency: Agency): Promise<AgencyData> {
     // Safely extract data with fallbacks
     const payload = data.payload as Record<string, unknown>;
     const projects: Project[] = payload.projects
-      ? Object.values(payload.projects as Record<string, Project>)
+      ? Object.values(payload.projects as Record<string, unknown>).filter(isValidProject)
       : [];
-    const departments = (payload.departments as Record<string, Department>) || {};
+    const rawDepartments = (payload.departments as Record<string, unknown>) || {};
+    const departments: Record<string, Department> = {};
+    for (const [key, value] of Object.entries(rawDepartments)) {
+      if (isValidDepartment(value)) {
+        departments[key] = value;
+      }
+    }
 
     return {
       name: agency.name,
@@ -109,8 +147,8 @@ async function fetchAgencyWithCache(
 
   const result = await fetchAgencyData(agency);
 
-  // Only cache successful results (no error or has projects)
-  if (!result.error && result.projects.length > 0) {
+  // Cache all successful results (including zero-project agencies)
+  if (!result.error) {
     try {
       await kv.put(cacheKey, JSON.stringify(result), {
         expirationTtl: KV_TTL_SECONDS,

@@ -65,11 +65,6 @@ export function sortProjects(
         return dateB - dateA;
       });
 
-    case "agency-name":
-      return sorted.sort((a, b) =>
-        (a.ProjectName || "").localeCompare(b.ProjectName || "")
-      );
-
     case "department":
       return sorted.sort((a, b) =>
         (a.DepartmentID || "").localeCompare(b.DepartmentID || "")
@@ -90,7 +85,7 @@ export function filterByClosingDate(
   projects: Project[],
   days?: number
 ): Project[] {
-  if (!days) return projects;
+  if (days == null) return projects;
 
   return projects.filter((project) => {
     const daysUntil = getDaysUntilClose(project.DateClose);

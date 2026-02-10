@@ -6,6 +6,7 @@
     ".react-router/types/**/*",
     "worker-configuration.d.ts"
   ],
+  "exclude": ["node_modules", "build", "vitest.config.ts"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["@cloudflare/workers-types", "vite/client"],

@@ -27,6 +27,7 @@ export default async function handleRequest(
   }
 
   responseHeaders.set("Content-Type", "text/html");
+  responseHeaders.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
 
   return new Response(body, {
     headers: responseHeaders,

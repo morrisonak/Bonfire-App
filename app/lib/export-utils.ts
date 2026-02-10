@@ -22,6 +22,8 @@ export function exportToCSV(projectsWithAgency: ProjectWithAgency[]): string {
     "Project Name",
     "Reference ID",
     "Department",
+    "Description",
+    "Date Open",
     "Close Date",
     "Days Until Close",
     "Portal Link",
@@ -39,11 +41,18 @@ export function exportToCSV(projectsWithAgency: ProjectWithAgency[]): string {
       : "N/A";
     const link = `${agencyData.baseUrl}${project.ProjectID}`;
 
+    const description = project.Description || "";
+    const dateOpen = project.DateOpen
+      ? formatCloseDate(project.DateOpen)
+      : "N/A";
+
     return [
       agencyData.name,
       project.ProjectName,
       project.ReferenceID,
       department,
+      description,
+      dateOpen,
       closeDate,
       daysUntil,
       link,
@@ -74,7 +83,7 @@ export function exportToCSV(projectsWithAgency: ProjectWithAgency[]): string {
  * @param filename - Filename for download
  */
 export function downloadCSV(csvContent: string, filename: string): void {
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob([`\uFEFF${csvContent}`], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
 
@@ -116,6 +125,8 @@ export function exportToJSON(agencyDataList: AgencyData[]) {
       referenceId: project.ReferenceID,
       department:
         agency.departments[project.DepartmentID]?.DepartmentName || "Unknown",
+      description: project.Description || "",
+      dateOpen: project.DateOpen || null,
       closeDate: project.DateClose,
       portalLink: `${agency.baseUrl}${project.ProjectID}`,
     }))

@@ -34,7 +34,6 @@ export function getRelativeDate(dateString: string): string {
 
     if (diffInDays < 0) {
       const absDays = Math.abs(diffInDays);
-      if (absDays === 0) return "today";
       if (absDays === 1) return "yesterday";
       if (absDays < 7) return `${absDays} days ago`;
       if (absDays < 30) return `${Math.floor(absDays / 7)} weeks ago`;

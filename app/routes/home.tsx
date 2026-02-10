@@ -1,4 +1,4 @@
-import { useLoaderData, useSearchParams } from "react-router";
+import { useLoaderData, useSearchParams, useNavigation, type ShouldRevalidateFunctionArgs } from "react-router";
 import { useState, useEffect, useRef, useMemo } from "react";
 import type { Route } from "./+types/home";
 import type { SortOption } from "~/lib/types";
@@ -55,7 +55,13 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const pageSizeRaw = Number(url.searchParams.get("pageSize") ?? "20");
   const pageSize = clampInt(pageSizeRaw, { min: 5, max: 200 });
 
-  const results = await fetchAllAgencies(agencies, env.KV);
+  // Only fetch the selected agency instead of all 66 when viewing a single agency
+  const agenciesToFetch =
+    agency === "all"
+      ? agencies
+      : agencies.filter((a) => a.name === agency);
+
+  const results = await fetchAllAgencies(agenciesToFetch, env.KV);
 
   return {
     results,
@@ -70,10 +76,26 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   };
 }
 
+// --- Prevent unnecessary re-fetches when only client-side filters change ---
+export function shouldRevalidate({ currentUrl, nextUrl }: ShouldRevalidateFunctionArgs) {
+  const currentAgency = currentUrl.searchParams.get("agency") ?? "all";
+  const nextAgency = nextUrl.searchParams.get("agency") ?? "all";
+
+  // Only re-fetch from the server when the agency selection changes
+  if (currentAgency !== nextAgency) {
+    return true;
+  }
+
+  // For filter/sort/page changes, skip revalidation — the client already has the data
+  return false;
+}
+
 // --- React Component ---
 export default function Home() {
   const { results: data, state: defaultState } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigation = useNavigation();
+  const [errorBannerDismissed, setErrorBannerDismissed] = useState(false);
 
   // URL is the source of truth; loader state gives SSR defaults.
   const selectedAgencyName = searchParams.get("agency") ?? defaultState.agency;
@@ -140,6 +162,7 @@ export default function Home() {
     const next = new URLSearchParams(searchParams);
     next.set("page", String(nextPage));
     setSearchParams(next, { replace: false });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSearchChange = (value: string) => {
@@ -257,11 +280,27 @@ export default function Home() {
 
   const paged = filteredProjectsWithAgency.slice(startIndex, endIndexExclusive);
 
+  // Dynamic page title
+  useEffect(() => {
+    const label = isAllAgenciesView
+      ? `All Agencies (${total})`
+      : selectedAgencyName;
+    document.title = `${label} - Open Opportunities`;
+  }, [isAllAgenciesView, selectedAgencyName, total]);
+
+  // Compute error counts for the all-agencies banner
+  const agenciesWithErrors = isAllAgenciesView
+    ? data.filter((a) => a.error)
+    : [];
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950">
       <Navbar selectedAgency={selectedAgency} allAgencies={data} />
 
-      <main className="flex-1 flex flex-col gap-6 max-w-4xl mx-auto p-6">
+      <main
+        id="main-content"
+        className={`flex-1 flex flex-col gap-6 max-w-4xl mx-auto p-6${navigation.state === "loading" ? " opacity-50 pointer-events-none" : ""}`}
+      >
         <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100">
           Open Opportunities
         </h1>
@@ -274,6 +313,23 @@ export default function Home() {
             onChange={(val) => setParam("agency", val)}
           />
         </div>
+
+        {/* Error banner for all agencies view */}
+        {isAllAgenciesView && agenciesWithErrors.length > 0 && !errorBannerDismissed && (
+          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400 dark:border-yellow-600 text-yellow-800 dark:text-yellow-300 px-4 py-3 rounded flex items-center justify-between">
+            <span>
+              {agenciesWithErrors.length} of {data.length} agencies could not be loaded. Data may be incomplete.
+            </span>
+            <button
+              type="button"
+              onClick={() => setErrorBannerDismissed(true)}
+              className="ml-4 text-yellow-800 dark:text-yellow-300 hover:opacity-70 font-bold"
+              aria-label="Dismiss error banner"
+            >
+              &times;
+            </button>
+          </div>
+        )}
 
         {/* Search, Filter, and Sort Controls */}
         <div className="flex justify-center">
@@ -298,23 +354,25 @@ export default function Home() {
         )}
 
         {/* Results Count and Export */}
-        {total > 0 && (
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {startIndex + 1}-{endIndexExclusive} of {total}{" "}
-              {total === 1 ? "opportunity" : "opportunities"}
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => exportProjectsToCSV(filteredProjectsWithAgency)}
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Export to CSV
-            </Button>
-          </div>
-        )}
+        <div aria-live="polite">
+          {total > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Showing {startIndex + 1}-{endIndexExclusive} of {total}{" "}
+                {total === 1 ? "opportunity" : "opportunities"}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => exportProjectsToCSV(filteredProjectsWithAgency)}
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Export to CSV
+              </Button>
+            </div>
+          )}
+        </div>
 
         {/* Project List */}
         {total > 0 ? (
@@ -337,9 +395,24 @@ export default function Home() {
             />
           </>
         ) : (
-          <p className="text-center text-gray-500 dark:text-gray-400 mt-6">
-            No projects found matching your filters.
-          </p>
+          <div className="flex flex-col items-center gap-4 mt-6 p-8 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm">
+            <p className="text-center text-gray-500 dark:text-gray-400">
+              No projects found matching your filters.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => {
+                const next = new URLSearchParams();
+                if (selectedAgencyName !== "all") {
+                  next.set("agency", selectedAgencyName);
+                }
+                setSearchParams(next, { replace: false });
+                setSearchInput("");
+              }}
+            >
+              Clear all filters
+            </Button>
+          </div>
         )}
       </main>
     </div>
