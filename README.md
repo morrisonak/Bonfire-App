@@ -1,87 +1,91 @@
-# Welcome to React Router!
+# Bonfire App
 
-A modern, production-ready template for building full-stack React applications using React Router.
-
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+A procurement opportunity aggregator that pulls open solicitations from 50+ government and public agency portals powered by Bonfire Hub. Search, filter, sort, and export opportunities across federal, state, county, city, university, healthcare, transit, and utility agencies.
 
 ## Features
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- **Multi-Agency Aggregation** - Fetches open opportunities from 50+ agencies in a single view
+- **Search & Filter** - Search by project name, reference ID, or description; filter by days until close, category, or agency
+- **Sorting** - Sort by close date, open date, agency name, or department
+- **Export** - Download results as CSV or JSON
+- **Agency Categories** - Federal, State, County, City, University, Healthcare, Transit, Utility, Regional, International
+- **Edge Caching** - KV-backed 5-minute cache per agency for fast repeat loads
+- **Dark Mode** - System-aware with manual toggle
+- **Responsive** - Mobile and desktop layouts
+
+## Tech Stack
+
+- **Framework**: [React Router v7](https://reactrouter.com/) with SSR
+- **Runtime**: [Cloudflare Workers](https://workers.cloudflare.com/) (edge compute)
+- **Database**: [Cloudflare D1](https://developers.cloudflare.com/d1/) (SQLite)
+- **Cache**: [Cloudflare KV](https://developers.cloudflare.com/kv/)
+- **UI**: [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+- **Language**: TypeScript 5.7 (strict mode)
+- **Package Manager**: [Bun](https://bun.sh/)
+- **Linting**: [Biome](https://biomejs.dev/)
+- **Testing**: [Vitest](https://vitest.dev/)
 
 ## Getting Started
 
+### Prerequisites
+
+- [Bun](https://bun.sh/) 1.0+
+- A [Cloudflare](https://cloudflare.com/) account (for D1 and KV)
+
 ### Installation
 
-Install the dependencies:
+```bash
+bun install
+```
+
+### Database Setup
 
 ```bash
-npm install
+wrangler d1 migrations apply bonfire-cache
 ```
 
 ### Development
 
-Start the development server with HMR:
+```bash
+bun run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173).
+
+### Production
 
 ```bash
-npm run dev
+bun run build
+bun run deploy
 ```
 
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
-
-```bash
-npm run build
-```
-
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
+## Project Structure
 
 ```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+app/
+  routes/
+    home.tsx              # Main opportunities browser
+  components/
+    navbar.tsx            # Navigation with dark mode toggle
+    agency-selector.tsx   # Grouped agency dropdown
+    search-filters.tsx    # Search, filter, sort controls
+    project-card.tsx      # Opportunity card
+    pagination-controls.tsx
+    ui/                   # shadcn/ui primitives
+  config/
+    agencies.ts           # 50+ agency configurations
+  lib/
+    api-client.ts         # Bonfire Hub API client with KV caching
+    project-utils.ts      # Filtering and sorting logic
+    date-utils.ts         # Date formatting
+    export-utils.ts       # CSV/JSON export
+    types.ts              # TypeScript interfaces
+workers/
+  app.ts                  # Cloudflare Workers entry point
+migrations/
+  0001_cache_schema.sql   # D1 schema
 ```
 
-## Styling
+## License
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+MIT
