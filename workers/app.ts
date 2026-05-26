@@ -1,4 +1,5 @@
 import { createRequestHandler } from "react-router";
+import { warmCache } from "../app/lib/cache-warmer";
 
 declare module "react-router" {
   interface AppLoadContext {
@@ -20,5 +21,11 @@ export default {
     return requestHandler(request, {
       cloudflare: { env, ctx },
     });
+  },
+
+  // Cron-triggered cache warmer (see wrangler.jsonc `triggers.crons`).
+  // Slowly populates D1 so user requests never have to hit bonfirehub directly.
+  async scheduled(_controller, env, ctx) {
+    ctx.waitUntil(warmCache(env));
   },
 } satisfies ExportedHandler<Env>;

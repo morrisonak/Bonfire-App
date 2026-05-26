@@ -1,9 +1,9 @@
 import { useLoaderData, useSearchParams, useNavigation, type ShouldRevalidateFunctionArgs } from "react-router";
 import { useState, useEffect, useRef, useMemo } from "react";
 import type { Route } from "./+types/home";
-import type { SortOption } from "~/lib/types";
+import type { AgencyData, SortOption } from "~/lib/types";
 import { agencies } from "~/config/agencies";
-import { fetchAllAgencies } from "~/lib/api-client";
+import { readCachedAgencies } from "~/lib/cache-store";
 import { getDaysUntilClose } from "~/lib/date-utils";
 import { Navbar } from "~/components/navbar";
 import { AgencySelector } from "~/components/agency-selector";
@@ -55,13 +55,27 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const pageSizeRaw = Number(url.searchParams.get("pageSize") ?? "20");
   const pageSize = clampInt(pageSizeRaw, { min: 5, max: 200 });
 
-  // Only fetch the selected agency instead of all 66 when viewing a single agency
-  const agenciesToFetch =
+  // Only surface the selected agency instead of all 70 when viewing a single one
+  const agenciesToShow =
     agency === "all"
       ? agencies
       : agencies.filter((a) => a.name === agency);
 
-  const results = await fetchAllAgencies(agenciesToFetch, env.KV);
+  // Read-only: serve whatever the background warmer has cached in D1. User
+  // requests never hit bonfirehub directly, so they're instant and can't be
+  // rate-limited. Agencies the warmer hasn't reached yet show no opportunities
+  // (not an error) until their first successful fetch lands in the cache.
+  const cached = await readCachedAgencies(env.DB);
+  const results: AgencyData[] = agenciesToShow.map(
+    (a) =>
+      cached.get(a.name)?.data ?? {
+        name: a.name,
+        baseUrl: a.baseUrl,
+        projects: [],
+        departments: {},
+        error: null,
+      }
+  );
 
   return {
     results,
